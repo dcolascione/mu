@@ -6,6 +6,12 @@
   The 1.14 series continues where the 1.12 series left off, with just some
   version updates & depreciations.
 
+*** mu4e
+
+    - ~mu4e-main-hide-personal-addresses~ can now also be a number, which is the
+      maximum number of addresses to show. This can be useful if you have
+      some many personal addresses that the clutter up the main view. (1.14.0)
+
 
 * 1.12 (released on February 24, 2024)
 
