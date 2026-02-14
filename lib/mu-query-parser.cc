@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2023 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
+** Copyright (C) 2023-2026 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -75,9 +75,6 @@ struct ParseContext {
 	std::vector<std::string>	warnings;
 };
 
-
-
-
 /**
  * Indexable fields become _phrase_ fields if they contain
  * wordbreakable data;
@@ -85,7 +82,7 @@ struct ParseContext {
  * @param field
  * @param val
  *
- * @return
+ * @return an s-expr or nothing
  */
 static Option<Sexp>
 phrasify(const Field& field, const Sexp& val)
