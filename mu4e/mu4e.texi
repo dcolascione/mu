@@ -3624,13 +3624,8 @@ the counts to latest known ones. When in the main-view, you can use
 @section Transient
 @cindex transient
 
-@code{mu4e} has experimental support for the ``transient'' menus, as per
-@ref{(transient) Top}. Because ``transient'' is not automatically available in
-all Emacs version that @code{mu4e} support, you need to manually enable it:
-@lisp
-(when (require 'mu4e-transient nil 'noerror)
-  (global-set-key (kbd "C-c m")  mu  #'mu4e-transient-menu))
-@end lisp
+@code{mu4e} has support for the ``transient'' menus, as per @ref{(transient)
+Top}, through @kbd{M-x mu4e-transient-menu}, or bind it to some key.
 
 @node Desktop notifications
 @section Desktop notifications

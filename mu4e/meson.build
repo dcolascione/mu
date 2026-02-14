@@ -1,4 +1,4 @@
-## Copyright (C) 2022-2025 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
+## Copyright (C) 2022-2026 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -94,8 +94,7 @@ endif
 #
 #... so let's not do that!
 
-# byte compile the sources that can be byte-compiled. This may exclude mu4e-transient.el and
-# mu4e-dbus.el
+# byte compile the sources that can be byte-compiled. This may exclude mu4e-dbus.el
 foreach src : mu4e_bc_srcs
   target_name= '@BASENAME@.elc'
   target_path = join_paths(meson.current_build_dir(), target_name)

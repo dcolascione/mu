@@ -45,6 +45,7 @@
 (require 'mu4e-notification)
 (require 'mu4e-server)     ;; communication with backend
 
+(require 'mu4e-transient)
 (when mu4e-speedbar-support
   (require 'mu4e-speedbar)) ;; support for speedbar
 (when mu4e-org-support
