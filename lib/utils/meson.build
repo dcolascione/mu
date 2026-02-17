@@ -34,8 +34,7 @@ else
   test_srcs =  []
 endif
 
-lib_mu_utils=static_library('mu-utils',
- [ srcs, test_srcs ], dependencies: [
+lib_mu_utils_dep_list= [
   glib_dep,
   gio_dep,
   gio_unix_dep,
@@ -43,8 +42,15 @@ lib_mu_utils=static_library('mu-utils',
   readline_dep,
   cld2_dep,
   fmt_dep
-], include_directories:
-     include_directories(['.', '..', thirdparty]),
+]
+
+if liburing_dep.found()
+  lib_mu_utils_dep_list += liburing_dep
+endif
+
+lib_mu_utils=static_library('mu-utils',
+ [ srcs, test_srcs ], dependencies: lib_mu_utils_dep_list,
+   include_directories: include_directories(['.', '..', thirdparty]),
 install: false)
 
 lib_mu_utils_dep = declare_dependency(

@@ -95,7 +95,7 @@ test('test-scanner',
                 build_by_default: false,
                 cpp_args: ['-DBUILD_TESTS'],
                 dependencies: [glib_dep, config_h_dep,
-                               lib_mu_utils_dep]))
+                               lib_mu_dep]))
 
 test('test-xapian-db',
      executable('test-xapian-db',

@@ -716,6 +716,13 @@ template<EnumBitmap Enum> constexpr bool none_of(Enum e) {
         static constexpr bool enable = true;	\
     }
 
+template <typename F>
+struct ScopeGuard {
+	explicit ScopeGuard(F closure) : closure(std::move(closure)) {}
+	~ScopeGuard() { closure(); }
+	F closure;
+};
+
 } // namespace Mu
 
 #endif /* MU_UTILS_HH__ */
