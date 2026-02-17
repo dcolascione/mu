@@ -131,6 +131,11 @@ public:
 	 */
 	Result<void> restore(const Store& store);
 
+	/**
+	 * @return whether the labels map is non-empty
+	 */
+	bool empty() const { return label_map_.empty(); }
+
 private:
 	/**
 	 * Deserialize the cache into a Map

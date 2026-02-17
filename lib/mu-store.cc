@@ -22,6 +22,7 @@
 
 #include <chrono>
 #include <mutex>
+#include <algorithm>
 #include <array>
 #include <cstdlib>
 #include <stdexcept>
@@ -130,6 +131,9 @@ struct Store::Private {
 						  Option<const std::string&> target_mdir,
 						  Option<Flags> new_flags,
 						  MoveOptions opts);
+
+	bool remove_message_by_id_unlocked(Store::Id id);
+
 	XapianDb xapian_db_;
 	Config config_;
 	ContactsCache            contacts_cache_;
@@ -430,17 +434,62 @@ Store::remove_messages(const std::vector<Store::Id>& ids)
 
 	xapian_db().request_transaction();
 
-	for (auto&& id : ids) {
-		if (const auto msg = priv_->find_message_unlocked(id); !msg) {
-			mu_warning("cannot find document {} for deletion", id);
-		} else {
-			for (auto&& label: msg->labels())
-				priv_->labels_cache_.decrease(label);
-			xapian_db().delete_document(id);
-		}
+	for (auto&& id : ids)
+		priv_->remove_message_by_id_unlocked(id);
+
+	xapian_db().request_commit(true/*force*/);
+}
+
+bool
+Store::Private::remove_message_by_id_unlocked(Store::Id id)
+{
+	if (auto msg = labels_cache_.empty() ? Nothing : find_message_unlocked(id); msg)
+		for (auto&& label: msg->labels())
+			labels_cache_.decrease(label);
+
+	if (!xapian_db_.delete_document(id)) {
+		mu_warning("cannot find document {} for deletion", id);
+		return false;
+	}
+
+	return true;
+}
+
+size_t
+Store::remove_messages_by_term(std::span<const std::string> terms,
+			       std::function<void (size_t)> progress_fn)
+{
+	std::unique_lock lock{priv_->lock_};
+	size_t nr_removed = 0;
+	std::vector<Xapian::Query> qvec;
+	std::vector<Store::Id> ids_to_remove;
+
+	xapian_db().request_transaction();
+
+	while (!terms.empty()) {
+		auto chunk = terms.subspan(0, std::min<size_t>(terms.size(), 1024));
+		terms = terms.subspan(chunk.size());
+		qvec.clear();
+		qvec.reserve(chunk.size());
+		std::ranges::copy(chunk, std::back_inserter(qvec));
+		auto enq = xapian_db().enquire();
+		enq.set_weighting_scheme(Xapian::BoolWeight());  // No score
+		enq.set_docid_order(Xapian::Enquire::ASCENDING);
+		enq.set_query(Xapian::Query{Xapian::Query::OP_OR, qvec.begin(), qvec.end()});
+		auto mset = enq.get_mset(0, xapian_db().size());
+		ids_to_remove.insert(ids_to_remove.end(), mset.begin(), mset.end());
+	}
+
+	// Sort the IDs to remove to make Xapian tree traversal easier
+	std::ranges::sort(ids_to_remove);
+	for (Id id : ids_to_remove) {
+		nr_removed += priv_->remove_message_by_id_unlocked(id);
+		if (nr_removed % 500 == 0)
+			progress_fn(nr_removed);
 	}
 
 	xapian_db().request_commit(true/*force*/);
+	return nr_removed;
 }
 
 Option<Message>
