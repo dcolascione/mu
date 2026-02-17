@@ -477,7 +477,11 @@ Store::remove_messages_by_term(std::span<const std::string> terms,
 		enq.set_docid_order(Xapian::Enquire::ASCENDING);
 		enq.set_query(Xapian::Query{Xapian::Query::OP_OR, qvec.begin(), qvec.end()});
 		auto mset = enq.get_mset(0, xapian_db().size());
-		ids_to_remove.insert(ids_to_remove.end(), mset.begin(), mset.end());
+		// Work around Xapian MSetIterator trait mismatch:
+		// https://trac.xapian.org/ticket/850
+		ids_to_remove.reserve(ids_to_remove.size() + mset.size());
+		for (auto it = mset.begin(); it != mset.end(); ++it)
+			ids_to_remove.push_back(*it);
 	}
 
 	// Sort the IDs to remove to make Xapian tree traversal easier
