@@ -659,7 +659,7 @@ As a side-effect, a message that is being viewed loses its
             (gnus-buttonized-mime-types
              (append (list "multipart/signed" "multipart/encrypted")
                      gnus-buttonized-mime-types))
-            (gnus-inhibit-mime-unbuttonizing t))
+            (gnus-inhibit-mime-unbuttonizing nil))
         (remove-overlays (point-min)(point-max) 'mu4e-overlay t)
         (erase-buffer)
         (insert-file-contents-literally
